@@ -739,7 +739,10 @@ class Block(PandasObject):
         mask = isna(values)
 
         if not self.is_object and not quoting:
-            values = values.astype(str)
+            if na_rep and isinstance(na_rep, str):
+                values = values.astype("<U{length}".format(length=len(na_rep)))
+            else:
+                values = values.astype(str)
         else:
             values = np.array(values, dtype='object')
 

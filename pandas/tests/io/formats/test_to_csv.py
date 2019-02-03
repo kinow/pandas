@@ -8,6 +8,7 @@ import pytest
 
 import pandas as pd
 from pandas import DataFrame, compat
+from pandas.compat import StringIO
 from pandas.util import testing as tm
 
 
@@ -561,3 +562,19 @@ z
             result = pd.read_csv(path, index_col=0,
                                  compression=read_compression)
             tm.assert_frame_equal(result, df)
+
+    def test_to_csv_na_rep_long_string(self, capsys):
+        # see gh-25099
+        df = pd.DataFrame({"c": [float('nan')] * 3})
+        df = df.astype("Int64")
+        expected_rows = ['c',
+                         'mynull',
+                         'mynull',
+                         'mynull']
+        expected = tm.convert_rows_list_to_csv_str(expected_rows)
+
+        csv_output = StringIO()
+        df.to_csv(csv_output, index=False, na_rep='mynull', encoding='ascii')
+        result = csv_output.getvalue()
+
+        assert result == expected
