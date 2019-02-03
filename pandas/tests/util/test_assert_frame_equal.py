@@ -207,3 +207,11 @@ def test_frame_equal_unicode(df1, df2, msg, by_blocks):
     # when comparing DataFrames containing differing unicode objects.
     with pytest.raises(AssertionError, match=msg):
         assert_frame_equal(df1, df2, by_blocks=by_blocks)
+
+
+def test_frame_equal_precision():
+    # see gh-25068
+    df1 = DataFrame([0.00016, -0.154526, -0.20580199999999998])
+    df2 = DataFrame(
+        [0.00015981824253685772, -0.15452557802200317, -0.20580188930034637])
+    _assert_frame_equal_both(df1, df2, check_exact=False, check_less_precise=3)
