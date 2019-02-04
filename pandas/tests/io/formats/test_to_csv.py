@@ -6,9 +6,10 @@ import sys
 import numpy as np
 import pytest
 
+from pandas.compat import StringIO
+
 import pandas as pd
 from pandas import DataFrame, compat
-from pandas.compat import StringIO
 from pandas.util import testing as tm
 
 

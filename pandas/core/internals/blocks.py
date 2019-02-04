@@ -7,7 +7,7 @@ import warnings
 
 import numpy as np
 
-from pandas._libs import internals as libinternals, lib, tslib, tslibs
+from pandas._libs import internals as libinternals, lib, tslib, tslibs, writers
 from pandas._libs.tslibs import Timedelta, conversion, is_null_datetimelike
 import pandas.compat as compat
 from pandas.compat import range, zip
@@ -739,8 +739,9 @@ class Block(PandasObject):
         mask = isna(values)
 
         if not self.is_object and not quoting:
-            if na_rep and isinstance(na_rep, str):
-                values = values.astype("<U{length}".format(length=len(na_rep)))
+            if na_rep is not None and isinstance(na_rep, (str, bytes)):
+                itemsize = writers.max_len_string(na_rep)
+                values = values.astype("<U{size}".format(size=itemsize))
             else:
                 values = values.astype(str)
         else:

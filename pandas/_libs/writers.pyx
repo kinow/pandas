@@ -128,18 +128,27 @@ def max_len_string_array(pandas_string[:] arr) -> Py_ssize_t:
 
     for i in range(length):
         val = arr[i]
-        if isinstance(val, str):
-            l = PyString_GET_SIZE(val)
-        elif isinstance(val, bytes):
-            l = PyBytes_GET_SIZE(val)
-        elif isinstance(val, unicode):
-            l = PyUnicode_GET_SIZE(val)
+        l = max_len_string(val)
 
         if l > m:
             m = l
 
     return m
 
+
+def max_len_string(val):
+    """ return the maximum size of a string"""
+    cdef:
+        Py_ssize_t l = 0
+
+    if isinstance(val, str):
+        l = PyString_GET_SIZE(val)
+    elif isinstance(val, bytes):
+        l = PyBytes_GET_SIZE(val)
+    elif isinstance(val, unicode):
+        l = PyUnicode_GET_SIZE(val)
+
+    return l
 
 # ------------------------------------------------------------------
 # PyTables Helpers
