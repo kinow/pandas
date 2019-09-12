@@ -10747,7 +10747,7 @@ class NDFrame(PandasObject, SelectionMixin):
             axis = self._get_axis_number(axis)
 
             if win_type is not None:
-                return Window(
+                return Rolling(
                     self,
                     window=window,
                     min_periods=min_periods,
