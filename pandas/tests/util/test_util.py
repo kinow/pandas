@@ -2,8 +2,8 @@ import os
 
 import pytest
 
+import pandas as pd
 import pandas.compat as compat
-
 import pandas.util.testing as tm
 
 
@@ -76,3 +76,25 @@ def test_rng_context():
         with tm.RNGContext(1):
             assert np.random.randn() == expected1
         assert np.random.randn() == expected0
+
+
+def test_assert_almost_equal():
+    # see https://github.com/pandas-dev/pandas/issues/25068
+    df1 = pd.DataFrame([
+        0.00016,
+        -0.154526,
+        -0.20580199999999998])
+    df2 = pd.DataFrame([
+        0.00015981824253685772,
+        -0.15452557802200317,
+        -0.20580188930034637])
+    pd.testing.assert_frame_equal(
+        df1, df2, check_exact=False, check_less_precise=3)
+    df1 = pd.DataFrame([
+        0.15,
+        0.099999])
+    df2 = pd.DataFrame([
+        0.16,
+        0.01])
+    pd.testing.assert_frame_equal(
+        df1, df2, check_exact=False, check_less_precise=1)
