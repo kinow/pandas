@@ -38,11 +38,25 @@ cdef bint is_dictlike(obj):
     return hasattr(obj, 'keys') and hasattr(obj, '__getitem__')
 
 
+cdef double _truncate(double n, int decimal):
+    """Truncate a double after the number of decimals specified.
+
+    Parameters
+    ----------
+    n: double
+        The given double value to be truncated
+    decimal: int
+        The amount of decimals that must be kept. For example,
+        for 0.123 with decimal being 1, means that this function
+        should worry with 1 number after the decimal separator.
+        The returned value in this case would then be 0.1.
+    """
+    multiplier = 10 ** decimal
+    return int(n * multiplier) / multiplier
+
+
 cdef bint decimal_almost_equal(double desired, double actual, int decimal):
-    # Code from
-    # http://docs.scipy.org/doc/numpy/reference/generated
-    # /numpy.testing.assert_almost_equal.html
-    return abs(desired - actual) < (0.5 * 10.0 ** -decimal)
+    return _truncate(desired, decimal) == _truncate(actual, decimal)
 
 
 cpdef assert_dict_equal(a, b, bint compare_keys=True):
@@ -203,15 +217,10 @@ cpdef assert_almost_equal(a, b,
 
         fa, fb = a, b
 
-        # case for zero
-        if abs(fa) < 1e-5:
-            if not decimal_almost_equal(fa, fb, decimal):
-                assert False, (f'(very low values) expected {fb:.5f} '
-                               f'but got {fa:.5f}, with decimal {decimal}')
-        else:
-            if not decimal_almost_equal(1, fb / fa, decimal):
-                assert False, (f'expected {fb:.5f} but got {fa:.5f}, '
-                               f'with decimal {decimal}')
+        if not decimal_almost_equal(fa, fb, decimal):
+            assert False, (f'expected {fb:.5f} but got {fa:.5f}, '
+                           f'with decimal {decimal}')
         return True
 
     raise AssertionError(f"{a} != {b}")
+
